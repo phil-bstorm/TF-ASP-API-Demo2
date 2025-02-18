@@ -1,0 +1,32 @@
+﻿using DemoAPI.BLL.Services.Interfaces;
+using DemoAPI.DAL.Repositories.Interfaces;
+using DemoAPI.Domain;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DemoAPI.BLL.Services
+{
+    public class CarService : ICarService
+    {
+        private readonly ICarRepository _carRepository;
+
+        public CarService(ICarRepository carRepository)
+        {
+            _carRepository = carRepository;
+        }
+
+        public Car Create(Car entity)
+        {
+           Car added = _carRepository.Create(entity);
+            return added;
+        }
+
+        public IEnumerable<Car> GetAll()
+        {
+            return _carRepository.GetAll();
+        }
+    }
+}
