@@ -29,6 +29,8 @@ namespace DemoAPI.DAL.Database.Configurations
             builder.Property(c => c.Color)
                 .IsRequired()
                 .HasMaxLength(50);
+            builder.Property(c => c.HorsePower)
+                .IsRequired();
             builder.Property(c => c.IsNew)
                 .HasDefaultValue(true);
             #endregion

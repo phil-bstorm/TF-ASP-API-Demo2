@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DemoAPI.DAL.Migrations
 {
     [DbContext(typeof(DemoDbContext))]
-    [Migration("20250218142027_init_db")]
+    [Migration("20250218210453_init_db")]
     partial class init_db
     {
         /// <inheritdoc />
@@ -42,6 +42,9 @@ namespace DemoAPI.DAL.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("HorsePower")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsNew")
                         .ValueGeneratedOnAdd()

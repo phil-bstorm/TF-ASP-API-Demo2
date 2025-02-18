@@ -40,6 +40,9 @@ namespace DemoAPI.DAL.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int>("HorsePower")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsNew")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
