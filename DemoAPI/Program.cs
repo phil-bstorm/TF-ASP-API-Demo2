@@ -3,8 +3,6 @@ using DemoAPI.BLL.Services.Interfaces;
 using DemoAPI.DAL.Database;
 using DemoAPI.DAL.Repositories;
 using DemoAPI.DAL.Repositories.Interfaces;
-using DemoAPI.Database;
-using DemoAPI.Database.Intefaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,9 +16,6 @@ builder.Services.AddDbContext<DemoDbContext>(options =>
 
 builder.Services.AddScoped<ICarRepository, CarRepository>();
 builder.Services.AddScoped<ICarService, CarService>();
-
-
-builder.Services.AddSingleton<IFakeDatabase, FakeDatabase>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
