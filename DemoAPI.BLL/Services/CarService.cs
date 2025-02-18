@@ -26,7 +26,8 @@ namespace DemoAPI.BLL.Services
 
         public IEnumerable<Car> GetAll()
         {
-            return _carRepository.GetAll();
+            IEnumerable<Car> cars = _carRepository.GetAll();
+            return cars;
         }
     }
 }
