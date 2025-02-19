@@ -98,3 +98,87 @@ Dans le projet `API`, on va retrouver plusieurs dossiers:
   - `CarController`: controller qui contient les différentes routes pour intéragir avec les voitures (actuellement `GetAll` pour récuperer toutes les voitures et `Create` pour ajouter une nouvelle voiture)
 - `appsettings.json`: fichier de configuration de l'application (ex: contient la connection string de la base de données)
 - `Startup.cs`: fichier de configuration de l'application (ex: configuration des services, des middlewares...)
+
+## Rappel sur l'injection de dépendance
+
+### On prépare la dépendance (le service)
+
+1. On crée une interface qui contient les méthodes que l'on veut utiliser
+2. On implémente cette interface dans une classe
+
+```csharp
+namespace DemoAPI.DAL.Repositories
+{
+    public class CarRepository : ICarRepository
+    {
+        private readonly DemoDbContext _context;
+
+        public CarRepository(DemoDbContext context)
+        {
+            _context = context;
+        }
+
+        public Car Create(Car car)
+        {
+            Car result = _context.Cars.Add(car).Entity;
+            _context.SaveChanges();
+            return result;
+        }
+
+        public IEnumerable<Car> GetAll()
+        {
+            return _context.Cars;
+        }
+    }
+}
+```
+
+### On met à disposition notre dépandance (service)
+
+Dans program.cs, on configure les services entre `WebApplication.CreateBuilder` et `builder.Build`.
+
+```csharp
+(...)
+
+var builder = WebApplication.CreateBuilder(args);
+
+(...)
+
+builder.Services.AddScoped<ICarRepository, CarRepository>(); // mise à disposition de la dépendance (on lié l'interface `ICarRepository` à la classe `CarRepository`)
+(...)
+
+var app = builder.Build();
+
+(...)
+```
+
+### Injecter la dépendance (service)
+
+Dans un autre service:
+
+```csharp
+namespace DemoAPI.BLL.Services
+{
+    public class CarService : ICarService
+    {
+        private readonly ICarRepository _carRepository; // variable pour stocker la dépendance (private readonly pour ne pas qu'elle soit modifiée)
+
+        public CarService(ICarRepository carRepository) // injection de la dépendance
+        {
+            _carRepository = carRepository; // sauvegarde de la dépendance dans la variable
+        }
+
+        public Car Create(Car entity)
+        {
+           Car added = _carRepository.Create(entity); // utilisations de la dépendance
+            return added;
+        }
+
+        public IEnumerable<Car> GetAll()
+        {
+            IEnumerable<Car> cars = _carRepository.GetAll(); // utilisations de la dépendance
+            return cars;
+        }
+    }
+}
+```
