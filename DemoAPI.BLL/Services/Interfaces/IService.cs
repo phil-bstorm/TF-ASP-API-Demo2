@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace DemoAPI.BLL.Services.Interfaces
 {
-    public interface IService<T>
+    public interface IService<Entity, Key>
     {
-        IEnumerable<T> GetAll();
-        T Create(T entity);
+        IEnumerable<Entity> GetAll();
+        Entity Create(Entity entity);
+        Entity? GetOne(Key id);
     }
 }

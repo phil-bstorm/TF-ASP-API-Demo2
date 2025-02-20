@@ -29,5 +29,12 @@ namespace DemoAPI.DAL.Repositories
         {
             return _context.Cars;
         }
+
+        public Car? GetOne(int id)
+        {
+            //return _context.Cars.Where(c => c.Id == id).FirstOrDefault();
+            //return _context.Cars.FirstOrDefault(x => x.Id == id);
+            return _context.Cars.Find(id);
+        }
     }
 }

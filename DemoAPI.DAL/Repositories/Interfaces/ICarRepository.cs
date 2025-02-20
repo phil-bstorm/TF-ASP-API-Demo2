@@ -11,5 +11,6 @@ namespace DemoAPI.DAL.Repositories.Interfaces
     {
         IEnumerable<Car> GetAll();
         Car Create(Car car);
+        Car? GetOne(int id);
     }
 }

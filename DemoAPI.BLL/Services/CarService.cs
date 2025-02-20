@@ -20,6 +20,10 @@ namespace DemoAPI.BLL.Services
 
         public Car Create(Car entity)
         {
+            if(entity.HorsePower > 999)
+            {
+                throw new Exception("Too many horse power");
+            }
            Car added = _carRepository.Create(entity);
             return added;
         }
@@ -28,6 +32,11 @@ namespace DemoAPI.BLL.Services
         {
             IEnumerable<Car> cars = _carRepository.GetAll();
             return cars;
+        }
+
+        public Car? GetOne(int id)
+        {
+            return _carRepository.GetOne(id);
         }
     }
 }
