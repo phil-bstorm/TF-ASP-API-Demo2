@@ -1,6 +1,7 @@
 ﻿using DemoAPI.BLL.Services.Interfaces;
 using DemoAPI.DAL.Repositories.Interfaces;
 using DemoAPI.Domain.Models;
+using Isopoh.Cryptography.Argon2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,12 +28,15 @@ namespace DemoAPI.BLL.Services
                 throw new Exception("Email already exists");
             }
 
+            // encryption du mot de passe
+            entity.Password = Argon2.Hash(entity.Password);
+
             return _utilisateurRepository.Create(entity);
         }
 
         public void Delete(int id)
         {
-            Utilisateur utilisateur = _utilisateurRepository.GetOne(id);
+            Utilisateur? utilisateur = _utilisateurRepository.GetOne(id);
             if (utilisateur is not null)
             {
                 _utilisateurRepository.Delete(utilisateur);

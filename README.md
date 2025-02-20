@@ -182,3 +182,79 @@ namespace DemoAPI.BLL.Services
     }
 }
 ```
+
+## Encryption de mot de passe
+
+Pour éviter d'avoir le mot de passe en clair dans la base de données, il est nécessaire d'encrypter le mot de passe.
+
+**Dans quel layer fait-on l'encryption du mot de passe?** L'encryption du mot de passe est souvent fait dans le layer BLL, cependant cela reste un choix personnel. Par exemple, il est possible de faire l'encryption dans le layer API pour que le mot de passe soit encrypté le plus tôt dans l'application ou encore lors de l'INSERT dans la base de données.
+
+**Quand fait-on l'encryption du mot de passe?** L'encryption du mot de passe est fait lors de la création du utilisateur (ou lors de la modification du mot de passe).
+
+Une fois le mot de passe encrypter dans la base de donnée, pour vérifier si un mot de passe correspond au hash de la base de données, il suffit d'utiliser la méthode `Verify` de la bibliothèque utilisée.
+
+### Bibliothèques
+
+Pour encrypter un mot de passe, plusieurs bibliothèques sont disponibles:
+
+- BCrypt
+- Argon2
+- et bien d'autres
+
+Dans cette démo, nous allons utilisé `Argon2` avec le Nugget package suivant: `Isopoh.Cryptography.Argon2`.
+
+### Utilisation
+
+On notera 2 méthodes principales:
+
+- `Hash` : pour encrypter un mot de passe
+- `Verify` : pour vérifier si un mot de passe correspond à un hash
+
+Exemples d'encryption dans le UserService de la BLL:
+
+```csharp
+//...
+using Isopoh.Cryptography.Argon2;
+//...
+
+public Utilisateur Create(Utilisateur entity)
+{
+    // vérifier que mon email n'est pas déjà en DB
+    Utilisateur? existingEmail = _utilisateurRepository.GetByEmail(entity.Email);
+    if (existingEmail is not null)
+    {
+        throw new Exception("Email already exists");
+    }
+
+    // encryption du mot de passe
+    entity.Password = Argon2.Hash(entity.Password); // encryption du mot de passe et sauvegarde dans l'entité
+
+    return _utilisateurRepository.Create(entity);
+}
+//...
+```
+
+Exemple de vérification dans le UserService de la BLL:
+
+```csharp
+//...
+using Isopoh.Cryptography.Argon2;
+//...
+
+public Utilisateur? Login(string username, string password)
+{
+    Utilisateur? user = _utilisateurRepository.GetByUsername(username);
+    if (user is null)
+    {
+        return null;
+    }
+
+    if (Argon2.Verify(user.Password, password)) // vérification du mot de passe
+    {
+        return user;
+    }
+
+    return null;
+}
+//...
+```
