@@ -1,5 +1,5 @@
 ﻿using DemoAPI.BLL.Services.Interfaces;
-using DemoAPI.Domain;
+using DemoAPI.Domain.Models;
 using DemoAPI.DTOs;
 using DemoAPI.Mappers;
 using Microsoft.AspNetCore.Http;

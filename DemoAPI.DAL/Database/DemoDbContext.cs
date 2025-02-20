@@ -1,5 +1,5 @@
 ﻿using DemoAPI.DAL.Database.Configurations;
-using DemoAPI.Domain;
+using DemoAPI.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,6 +12,7 @@ namespace DemoAPI.DAL.Database
     public class DemoDbContext : DbContext
     {
         public DbSet<Car> Cars { get; set; }
+        public DbSet<Utilisateur> Utilisateurs { get; set; }
 
         public DemoDbContext(DbContextOptions<DemoDbContext> options) : base(options) { }
 
@@ -19,6 +20,7 @@ namespace DemoAPI.DAL.Database
         {
             // configurations des tables...
             modelBuilder.ApplyConfiguration(new CarConfig());
+            modelBuilder.ApplyConfiguration(new UtilisateurConfig());
         }
     }
 }

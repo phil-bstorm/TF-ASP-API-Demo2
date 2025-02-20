@@ -15,7 +15,9 @@ builder.Services.AddDbContext<DemoDbContext>(options =>
 });
 
 builder.Services.AddScoped<ICarRepository, CarRepository>();
+builder.Services.AddScoped<IUtilisateurRepository, UtilisateurRepository>();
 builder.Services.AddScoped<ICarService, CarService>();
+builder.Services.AddScoped<IUtilisateurService, UtilisateurService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

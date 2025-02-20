@@ -1,6 +1,6 @@
 ﻿using DemoAPI.BLL.Services.Interfaces;
 using DemoAPI.DAL.Repositories.Interfaces;
-using DemoAPI.Domain;
+using DemoAPI.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +28,11 @@ namespace DemoAPI.BLL.Services
             return added;
         }
 
+        public void Delete(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<Car> GetAll()
         {
             IEnumerable<Car> cars = _carRepository.GetAll();
@@ -37,6 +42,11 @@ namespace DemoAPI.BLL.Services
         public Car? GetOne(int id)
         {
             return _carRepository.GetOne(id);
+        }
+
+        public Utilisateur Update(Utilisateur val)
+        {
+            throw new NotImplementedException();
         }
     }
 }

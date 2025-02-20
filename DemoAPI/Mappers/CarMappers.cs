@@ -1,4 +1,4 @@
-﻿using DemoAPI.Domain;
+﻿using DemoAPI.Domain.Models;
 using DemoAPI.DTOs;
 
 namespace DemoAPI.Mappers

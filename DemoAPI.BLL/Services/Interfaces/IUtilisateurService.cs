@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DemoAPI.BLL.Services.Interfaces
 {
-    public interface ICarService : IService<Car, int>
+    public interface IUtilisateurService : IService<Utilisateur, int>
     {
     }
 }

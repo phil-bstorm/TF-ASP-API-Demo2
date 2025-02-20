@@ -1,4 +1,4 @@
-﻿namespace DemoAPI.Domain
+﻿namespace DemoAPI.Domain.Models
 {
     public class Car
     {
