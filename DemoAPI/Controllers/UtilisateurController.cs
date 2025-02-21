@@ -1,23 +1,31 @@
 ﻿using DemoAPI.BLL.Services.Interfaces;
+using DemoAPI.Domain.CustomEnums;
 using DemoAPI.Domain.Models;
 using DemoAPI.DTOs;
 using DemoAPI.Mappers;
+using DemoAPI.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace DemoAPI.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class UtilisateurController : ControllerBase
     {
         private readonly IUtilisateurService _utilisateurService;
+        private readonly IAuthService _authService;
 
-        public UtilisateurController(IUtilisateurService utilisateurService)
+        public UtilisateurController(IUtilisateurService utilisateurService, IAuthService authService)
         {
             _utilisateurService = utilisateurService;
+            _authService = authService;
         }
 
         [HttpGet]
+        [Authorize(Roles= "Medior")]
         public ActionResult<IEnumerable<ListUtilisateurDTO>> GetAll() {
             IEnumerable<Utilisateur> utilisateurs = _utilisateurService.GetAll();
 
@@ -41,11 +49,59 @@ namespace DemoAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Junior,Medior")]
         public ActionResult<DetailsUtilisateurDTO> GetById(int id)
         {
             Utilisateur utilisateur = _utilisateurService.GetOne(id);
             DetailsUtilisateurDTO dto = utilisateur.ToDetailsUtilisateurDTO();
             return Ok(dto);
+        }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Medior")]
+        public ActionResult<DetailsUtilisateurDTO> Update(int id, [FromForm] UpdateUtilisateurDTO dto)
+        {
+            if (ModelState.IsValid)
+            {
+                Utilisateur utilisateur = dto.ToUtilisateur();
+                utilisateur.Id = id;
+
+                Utilisateur updated = _utilisateurService.Update(utilisateur);
+                return Ok(updated.ToDetailsUtilisateurDTO());
+            }
+            return BadRequest();
+        }
+
+        [HttpPut()]
+        public ActionResult<DetailsUtilisateurDTO> UpdateSelf([FromForm] UpdateUtilisateurDTO dto)
+        {
+           if(int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value, out int id)) 
+            {
+                if (ModelState.IsValid)
+                {
+                    // convertion du DTO
+                    Utilisateur utilisateur = dto.ToUtilisateur();
+                    utilisateur.Id = id;
+
+                    Utilisateur updated = _utilisateurService.Update(utilisateur);
+                    return Ok(updated.ToDetailsUtilisateurDTO());
+                }
+            }
+            return BadRequest();
+        }
+
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public ActionResult<string> Login([FromForm] LoginUtilisateurDTO dto)
+        {
+            // login BLL
+            Utilisateur utilisateur = _utilisateurService.Login(dto.Email, dto.Password);
+
+            // génération du token
+            string token = _authService.GenerateToken(utilisateur);
+
+            // envoie de la réponse
+            return Ok(token);
         }
     }
 }
