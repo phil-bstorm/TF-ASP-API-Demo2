@@ -3,6 +3,7 @@ using DemoAPI.BLL.Services.Interfaces;
 using DemoAPI.DAL.Database;
 using DemoAPI.DAL.Repositories;
 using DemoAPI.DAL.Repositories.Interfaces;
+using DemoAPI.Middlewares;
 using DemoAPI.Services;
 using DemoAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -94,8 +95,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseMiddleware<ExceptionMiddleware>();
+
+app.UseAuthentication(); // check du token
+app.UseAuthorization(); // vérification des rôle ([Authorize])
 
 app.MapControllers();
 

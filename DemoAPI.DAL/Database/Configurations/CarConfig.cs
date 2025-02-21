@@ -40,6 +40,7 @@ namespace DemoAPI.DAL.Database.Configurations
             #endregion
 
             #region Relations
+            // https://learn.microsoft.com/en-us/ef/core/modeling/relationships
             // Relation 1:N entre Car et Utilisateur (Une voiture peut possèder un propriétaire et un utilisateur peut possèder plusieurs voitures)
             builder.HasOne(c => c.Owner) // Car possède un Owner
                 .WithMany(u => u.Cars) // Utilisateur possède plusieurs Cars
