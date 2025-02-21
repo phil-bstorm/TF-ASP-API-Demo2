@@ -35,5 +35,17 @@ namespace DemoAPI.Mappers
                 Cars = utilisateur.Cars.Select(c => c.ToListCarDTO()).ToList()
             };
         }
+
+        public static Utilisateur ToUtilisateur(this UpdateUtilisateurDTO dto)
+        {
+            return new Utilisateur
+            {
+                Username = dto.Username,
+                Password = dto.Password,
+
+                Email = "", // cette valeur ne sera pas utiliser mais est nécessaire à l'instanciation de l'objet
+                Grade = Grade.Junior, // cette valeur ne sera pas utiliser mais est nécessaire à l'instanciation de l'objet
+            };
+        }
     }
 }

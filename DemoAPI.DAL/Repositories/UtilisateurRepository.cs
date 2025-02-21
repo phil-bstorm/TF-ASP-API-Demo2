@@ -45,8 +45,8 @@ namespace DemoAPI.DAL.Repositories
         public Utilisateur? GetOne(int id)
         {
             return _context.Utilisateurs
-                .Include(u => u.Cars)
-                .AsNoTracking()
+                .Include(u => u.Cars) // permet de récupérer les voitures de l'utilisateur
+                .AsNoTracking() // si le lazyloading est désactivé dans la configuration, permet de ne récupérer que le premier sous-objet
                 .FirstOrDefault(x => x.Id == id);
         }
 

@@ -8,7 +8,7 @@ Elle a pour but de réaliser une API REST en utilisant le framework ASP .NET Cor
 
 Cette solution a utilise l'architecture suivante: N-Tiers (ou modèle en couche).
 
-- **DemoAPI**: contient les controllers (et les DTOs qui ne sont pas encore implémentés pour le moment)
+- **DemoAPI**: contient les controllers
 - **DemoAPI.BLL**: contient la logique métier (qui actuellement ne fait que communiquer avec la DAL)
 - **DemoAPI.DAL**: contient les intéraction avec la base de données
 - **DemoAPI.Domain**: contient les classes utilisées à travers l'application

@@ -59,7 +59,7 @@ namespace DemoAPI.BLL.Services
             if(utilisateur is not null)
             {
                 utilisateur.Username = val.Username is null ? utilisateur.Username : val.Username;
-                utilisateur.Password = val.Password is null ? utilisateur.Password : val.Password; ;
+                utilisateur.Password = val.Password is null ? utilisateur.Password : Argon2.Hash(val.Password); // on n'oublie pas de re-crypter le mot de passe
 
                 Utilisateur updated = _utilisateurRepository.Update(utilisateur);
                 return updated;
@@ -68,6 +68,23 @@ namespace DemoAPI.BLL.Services
             {
                 throw new Exception("Utilisateur not found");
             }
+        }
+
+        public Utilisateur Login(string email, string password)
+        {
+            // récupérer l'utilisateur qui match le user
+            Utilisateur? utilisateur = _utilisateurRepository.GetByEmail(email);
+
+            if(utilisateur is not null)
+            {
+                // "Verfy" de Argon2
+                if(Argon2.Verify(utilisateur.Password, password))
+                {
+                    return utilisateur;
+                }
+            }
+
+            throw new Exception("Invalid login");
         }
     }
 }

@@ -9,5 +9,6 @@ namespace DemoAPI.BLL.Services.Interfaces
 {
     public interface IUtilisateurService : IService<Utilisateur, int>
     {
+        Utilisateur Login(string email, string password);
     }
 }

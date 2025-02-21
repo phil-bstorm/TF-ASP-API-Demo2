@@ -40,9 +40,10 @@ namespace DemoAPI.DAL.Database.Configurations
             #endregion
 
             #region Relations
-            builder.HasOne(c => c.Owner)
-                .WithMany(u => u.Cars)
-                .HasForeignKey("OwnerId")
+            // Relation 1:N entre Car et Utilisateur (Une voiture peut possèder un propriétaire et un utilisateur peut possèder plusieurs voitures)
+            builder.HasOne(c => c.Owner) // Car possède un Owner
+                .WithMany(u => u.Cars) // Utilisateur possède plusieurs Cars
+                .HasForeignKey("OwnerId") // La clé étrangère est OwnerId dans la DB (on doit le préciser car on fait du shadowing)
                 .OnDelete(DeleteBehavior.SetNull);
             #endregion
         }
