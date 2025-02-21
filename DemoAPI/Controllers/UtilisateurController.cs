@@ -28,7 +28,7 @@ namespace DemoAPI.Controllers
 
         [HttpPost]
         public ActionResult<DetailsUtilisateurDTO> Create([FromForm] CreateUtilisateurDTO dto) {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 // return _utilisateurService.Create(dto.ToUtilisateur()).ToDetailsUtilisateurDTO();
                 Utilisateur utilisateur = dto.ToUtilisateur();
@@ -38,6 +38,14 @@ namespace DemoAPI.Controllers
             }
 
             return BadRequest();
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<DetailsUtilisateurDTO> GetById(int id)
+        {
+            Utilisateur utilisateur = _utilisateurService.GetOne(id);
+            DetailsUtilisateurDTO dto = utilisateur.ToDetailsUtilisateurDTO();
+            return Ok(dto);
         }
     }
 }

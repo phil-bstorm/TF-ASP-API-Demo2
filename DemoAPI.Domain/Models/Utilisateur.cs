@@ -16,5 +16,7 @@ namespace DemoAPI.Domain.Models
         public required string Password { get; set; }
 
         public required Grade Grade { get; set; }
+
+        public List<Car> Cars { get; set; } = [];
     }
 }

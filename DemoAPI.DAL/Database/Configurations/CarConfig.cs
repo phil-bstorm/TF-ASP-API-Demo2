@@ -38,6 +38,13 @@ namespace DemoAPI.DAL.Database.Configurations
             #region Keys
             builder.HasKey(c => c.Id);
             #endregion
+
+            #region Relations
+            builder.HasOne(c => c.Owner)
+                .WithMany(u => u.Cars)
+                .HasForeignKey("OwnerId")
+                .OnDelete(DeleteBehavior.SetNull);
+            #endregion
         }
     }
 }

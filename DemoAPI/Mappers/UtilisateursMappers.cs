@@ -32,6 +32,7 @@ namespace DemoAPI.Mappers
                 Email = utilisateur.Email,
                 Username = utilisateur.Username,
                 Grade = utilisateur.Grade.ToString(),
+                Cars = utilisateur.Cars.Select(c => c.ToListCarDTO()).ToList()
             };
         }
     }

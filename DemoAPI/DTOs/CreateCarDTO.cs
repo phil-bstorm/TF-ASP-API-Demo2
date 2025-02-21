@@ -21,5 +21,7 @@ namespace DemoAPI.DTOs
         public required int HorsePower { get; set; }
 
         public bool IsNew { get; set; }
+
+        public int? OwnerId { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using DemoAPI.DAL.Database;
 using DemoAPI.DAL.Repositories.Interfaces;
 using DemoAPI.Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +35,9 @@ namespace DemoAPI.DAL.Repositories
         {
             //return _context.Cars.Where(c => c.Id == id).FirstOrDefault();
             //return _context.Cars.FirstOrDefault(x => x.Id == id);
-            return _context.Cars.Find(id);
+            return _context.Cars.Include(c => c.Owner)
+                .AsNoTracking()
+                .FirstOrDefault(x => x.Id == id);
         }
     }
 }

@@ -9,5 +9,7 @@ namespace DemoAPI.DTOs
         public required string Username { get; set; }
 
         public required string Grade { get; set; }
+
+        public List<ListCarDTO> Cars { get; set; } = [];
     }
 }

@@ -1,6 +1,7 @@
 ﻿using DemoAPI.DAL.Database;
 using DemoAPI.DAL.Repositories.Interfaces;
 using DemoAPI.Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +44,10 @@ namespace DemoAPI.DAL.Repositories
 
         public Utilisateur? GetOne(int id)
         {
-            return _context.Utilisateurs.Find(id);
+            return _context.Utilisateurs
+                .Include(u => u.Cars)
+                .AsNoTracking()
+                .FirstOrDefault(x => x.Id == id);
         }
 
         public Utilisateur Update(Utilisateur utilisateur)

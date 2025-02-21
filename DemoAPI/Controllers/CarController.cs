@@ -12,10 +12,12 @@ namespace DemoAPI.Controllers
     public class CarController : ControllerBase
     {
         private readonly ICarService _carService;
+        private readonly IUtilisateurService _utilisateurService;
 
-        public CarController(ICarService carService)
+        public CarController(ICarService carService, IUtilisateurService utilisateurService)
         {
             _carService = carService;
+            _utilisateurService = utilisateurService;
         }
 
         [HttpGet]
@@ -32,10 +34,10 @@ namespace DemoAPI.Controllers
         [HttpGet("{id}")]
         public ActionResult<Car> Get(int id)
         {
-            // TODO attention le getOne peut retrouner NULL (Gerer erreur 404)
+            // TODO attention le getOne peut retrouner NULL (Gerer erreur 404) => cours sur les middlewares
             Car car = _carService.GetOne(id);
 
-            // transformation en DTO
+            // TODO transformation en DTO
 
             return Ok(car);
         }
@@ -43,12 +45,21 @@ namespace DemoAPI.Controllers
         [HttpPost]
         public ActionResult<Car> Create([FromBody] CreateCarDTO DTO)
         {
-            // model state is valid
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
             Car car = DTO.ToCar();
+
+            if(DTO.OwnerId is not null)
+            {
+                car.Owner = _utilisateurService.GetOne(DTO.OwnerId.Value);
+            }
+
             Car added = _carService.Create(car);
 
-            // transformer DTO
+            // TODO transformer DTO
 
             return Ok(added);
         }
