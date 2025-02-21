@@ -1,4 +1,5 @@
-﻿using DemoAPI.BLL.Services.Interfaces;
+﻿using DemoAPI.BLL.CustomExceptions;
+using DemoAPI.BLL.Services.Interfaces;
 using DemoAPI.DAL.Repositories.Interfaces;
 using DemoAPI.Domain.Models;
 using Isopoh.Cryptography.Argon2;
@@ -25,7 +26,7 @@ namespace DemoAPI.BLL.Services
             Utilisateur? existingEmail = _utilisateurRepository.GetByEmail(entity.Email);
             if (existingEmail is not null)
             {
-                throw new Exception("Email already exists");
+                throw new EmailAlreadyExistsExecption();
             }
 
             // encryption du mot de passe
@@ -48,9 +49,16 @@ namespace DemoAPI.BLL.Services
             return _utilisateurRepository.GetAll();
         }
 
-        public Utilisateur? GetOne(int id)
+        public Utilisateur GetOne(int id)
         {
-            return _utilisateurRepository.GetOne(id);
+            Utilisateur? utilisateur =  _utilisateurRepository.GetOne(id);
+
+            if(utilisateur is null)
+            {
+                throw new UtilisateurNotFoundException();
+            }
+
+            return utilisateur;
         }
 
         public Utilisateur Update(Utilisateur val)
@@ -66,7 +74,7 @@ namespace DemoAPI.BLL.Services
             }
             else
             {
-                throw new Exception("Utilisateur not found");
+                throw new UtilisateurNotFoundException();
             }
         }
 
@@ -84,7 +92,7 @@ namespace DemoAPI.BLL.Services
                 }
             }
 
-            throw new Exception("Invalid login");
+            throw new InvalidLoginException();
         }
     }
 }

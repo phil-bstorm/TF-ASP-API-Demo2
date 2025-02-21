@@ -12,7 +12,7 @@ namespace DemoAPI.BLL.Services.Interfaces
     {
         IEnumerable<Entity> GetAll();
         Entity Create(Entity entity);
-        Entity? GetOne(Key id);
+        Entity GetOne(Key id);
         void Delete(int id);
         Utilisateur Update(Utilisateur val);
     }
