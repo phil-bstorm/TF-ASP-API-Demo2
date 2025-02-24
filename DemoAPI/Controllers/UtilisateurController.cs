@@ -17,11 +17,13 @@ namespace DemoAPI.Controllers
     {
         private readonly IUtilisateurService _utilisateurService;
         private readonly IAuthService _authService;
+        private readonly IMailHelperService _mailHelperService;
 
-        public UtilisateurController(IUtilisateurService utilisateurService, IAuthService authService)
+        public UtilisateurController(IUtilisateurService utilisateurService, IAuthService authService, IMailHelperService mailHelperService)
         {
             _utilisateurService = utilisateurService;
             _authService = authService;
+            _mailHelperService = mailHelperService;
         }
 
         [HttpGet]
@@ -41,6 +43,8 @@ namespace DemoAPI.Controllers
                 // return _utilisateurService.Create(dto.ToUtilisateur()).ToDetailsUtilisateurDTO();
                 Utilisateur utilisateur = dto.ToUtilisateur();
                 Utilisateur updated = _utilisateurService.Create(utilisateur);
+
+                _mailHelperService.SendWelcomeMail(utilisateur);
 
                 return Ok(updated.ToDetailsUtilisateurDTO());
             }
@@ -99,6 +103,8 @@ namespace DemoAPI.Controllers
 
             // génération du token
             string token = _authService.GenerateToken(utilisateur);
+
+            _mailHelperService.SendWarningLoginMail(utilisateur);
 
             // envoie de la réponse
             return Ok(token);
