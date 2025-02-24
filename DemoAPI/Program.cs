@@ -84,6 +84,23 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("FFA", policy => {
+            policy.AllowAnyOrigin();
+            policy.AllowAnyMethod();
+            policy.AllowAnyHeader();
+        });
+
+        options.AddPolicy("Dev", policy =>
+        {
+            policy.WithOrigins("http://localhost:63342", "http://demo.be");
+            policy.AllowAnyMethod();
+            policy.AllowAnyHeader();
+        });
+    }
+);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -94,6 +111,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("Dev");
 
 app.UseMiddleware<ExceptionMiddleware>();
 
