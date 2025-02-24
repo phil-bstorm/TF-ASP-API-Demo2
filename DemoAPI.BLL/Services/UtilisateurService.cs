@@ -51,7 +51,7 @@ namespace DemoAPI.BLL.Services
 
             if(limit > 100)
             {
-                limit = 50;
+                limit = 100;
             }
 
             return _utilisateurRepository.GetAll(offset, limit);
