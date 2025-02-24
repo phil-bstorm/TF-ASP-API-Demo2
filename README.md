@@ -542,8 +542,84 @@ public ActionResult<DetailsUtilisateurDTO> Create([FromForm] CreateUtilisateurDT
 
 ## Pagination
 
-TODO
+La pagination permet de limiter le nombre de résultats renvoyés par une requête.
 
+Par exemple, si on a 1000 utilisateurs dans la base de données, il est inutile de tous les renvoyer en une seule fois. Il est préférable de les renvoyer par groupe de 10, 20, 50, 100, etc...
+
+Dans la démo, lorsqu'on a implémenté la pagination, j'ai commencé par la DAL, puis la BLL et enfin l'API.
+
+⚠️ Note: dans l'exemple de code dans la démo, notre pagination commence à ZÉRO. Si on souhaite commencer à 1, il faudra ajouter `1` à la variable `Page` dans la BLL. (car c'est de la logique métier)
+
+### DAL
+
+Dans la DAL, dans les `repositories` qui possède une méthode `GetAll`, on va ajouter 2 paramètres:
+
+- `int offset`: le nombre de résultats à sauter
+- `int limit`: le nombre de résultats à renvoyer
+
+_La raiosn pour la quelle je parle avec `offset` et `limit`, c'est pour garder le même "vocabulaire" que la base de donnée._
+
+```csharp
+public IEnumerable<Car> GetAll(int offset = 0, int limit = 20)
+{
+    return _context.Cars
+        .Skip(offset) // on utilise 'Skip' de EF Core pour ignoré les premiers résultats
+        .Take(limit); // on utilise 'Take' de EF Core pour limiter le nombre de résultats
+}
 ```
 
+### BLL
+
+Dans la BLL, on va créer un nouveau model `PaginationParam` qui va contenir les informations de pagination.
+
+```csharp
+namespace DemoAPI.Domain.Models
+{
+    public class PaginationParams
+    {
+        public int Page { get; set; } = 0; // page actuel (attention on démarre de zéro, comme dans un tableau)
+        public int PageSize { get; set; } = 3; // nombre de résultats par page
+    }
+}
 ```
+
+Dans les services, on va ajouter un paramètre `PaginationParams` à la méthode `GetAll`.
+
+Et vu que notre repository utilise `offset` et `limit`, on va devoir faire la conversion entre `Page` et `PageSize` en `offset` et `limit`.
+
+```csharp
+public IEnumerable<Utilisateur> GetAll(PaginationParams pagination)
+{
+    int offset = pagination.Page * pagination.PageSize; // conversion de la page en offset
+    int limit = pagination.PageSize;
+
+    // on retourne maximum 100 résultats
+    if(limit > 100)
+    {
+        limit = 100;
+    }
+
+    return _utilisateurRepository.GetAll(offset, limit);
+}
+```
+
+_Note: ici on rajoute une règle métier qui fait qu'on ne retournera pas plus de 100 résultats par requête_
+
+### API
+
+Dans l'API, on va ajouter un paramètre `PaginationParams` à la méthode `GetAll`.
+
+```csharp
+[HttpGet]
+public ActionResult<IEnumerable<ListUtilisateurDTO>> GetAll([FromQuery] PaginationParams pagination) {
+    IEnumerable<Utilisateur> utilisateurs = _utilisateurService.GetAll(pagination);
+
+    IEnumerable<ListUtilisateurDTO> usersDTO = utilisateurs.Select(u => u.ToListUtilisateurDTO());
+
+    return Ok(usersDTO);
+}
+```
+
+Ici on précise que la pagination proviens des variables qui se trouve dans les Query Parameters de la requête HTTP. (Query Parameters = `?page=0&pageSize=3` à la suite de l'url, ex: `https://localhost:7201/Utilisateur?Page=1&PageSize=4`)
+
+_Note: il est aussi recommencer de transformer `PaginationParams` en DTO mais étandonné que je ne souhaite pas de validation dans cette classe (pour le moment car ce n'était pas le but de cet exemple), je n'ai pas créé de DTO_
