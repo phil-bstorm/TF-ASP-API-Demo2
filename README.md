@@ -4,6 +4,51 @@ Cette démo a été réaliser pendant le cours de Web API (18/02/25).
 
 Elle a pour but de réaliser une API REST en utilisant le framework ASP .NET Core avec le template Web API, une base de données SQLServer et Entity Framework Core.
 
+## Table des matières
+
+- [Web API Demo 2](#web-api-demo-2)
+  - [Table des matières](#table-des-matières)
+  - [Vocabulaires et acronymes](#vocabulaires-et-acronymes)
+  - [Organisation de la solution](#organisation-de-la-solution)
+  - [Explication du contenu de la démo](#explication-du-contenu-de-la-démo)
+    - [Domain](#domain)
+    - [DAL](#dal)
+    - [BLL](#bll)
+    - [API](#api)
+  - [Rappel sur les verbes HTTP (Get, Post, Put, Patch, Delete)](#rappel-sur-les-verbes-http-get-post-put-patch-delete)
+  - [Rappel sur l'injection de dépendance](#rappel-sur-linjection-de-dépendance)
+    - [On prépare la dépendance (le service)](#on-prépare-la-dépendance-le-service)
+    - [On met à disposition notre dépandance (service)](#on-met-à-disposition-notre-dépandance-service)
+    - [Injecter la dépendance (service)](#injecter-la-dépendance-service)
+  - [Encryption de mot de passe](#encryption-de-mot-de-passe)
+    - [Bibliothèques](#bibliothèques)
+    - [Utilisation](#utilisation)
+  - [CORS](#cors)
+    - [Configuration](#configuration)
+  - [Envoie d'email (MailKit)](#envoie-demail-mailkit)
+    - [SMTP4Dev](#smtp4dev)
+      - [Installation](#installation)
+      - [Interfaces](#interfaces)
+    - [Mailkit](#mailkit)
+      - [Installation](#installation-1)
+      - [Utilisation](#utilisation-1)
+        - [Interface](#interface)
+        - [Service](#service)
+        - [Mise à disposition de la dépendance](#mise-à-disposition-de-la-dépendance)
+        - [Utilisation](#utilisation-2)
+  - [Pagination](#pagination)
+
+## Vocabulaires et acronymes
+
+- API Rest: une application(serveur) qui utilise le protocole HTTP pour intéragir avec d'autres applications (clients) en utilisant des méthodes (GET, POST, PUT, PATCH, DELETE)
+- CRUD: Create, Read, Update, Delete. Les 4 opérations de base pour intéragir avec une base de données, création, lecture, mise à jour et suppression
+- ORM: Object-Relational Mapping, package qui permet de faire le lien entre les classes de l'application et la base de données (ex: Entity Framework Core)
+- DTO: Data Transfer Object, classe qui permet de transférer des données entre le client et le serveur (ex: pour éviter de renvoyer des mots de passe ou caché des informations), ce qui peut permettre de réduire les données transmisse sur la bande passante
+- JWT: JSON Web Token, token qui permet de sécuriser les échanges entre le client et le serveur (ex: pour s'authentifier)
+- CORS: Cross-Origin Resource Sharing, permet de définir qui peut accéder à l'API (ex: pour éviter les attaques CSRF) _"définir qui peut accéder"_ = quelle URL peut accéder à l'API
+- DI: Dependency Injection, permet de définir les dépendances d'une classe (ex: pour injecter un service dans un controller)
+- Middleware: permet de faire des opérations avant ou après une requête (ex: gérer les exceptions, vérification de JWT, CORS...)
+
 ## Organisation de la solution
 
 Cette solution a utilise l'architecture suivante: N-Tiers (ou modèle en couche).
@@ -99,7 +144,24 @@ Dans le projet `API`, on va retrouver plusieurs dossiers:
 - `appsettings.json`: fichier de configuration de l'application (ex: contient la connection string de la base de données)
 - `Startup.cs`: fichier de configuration de l'application (ex: configuration des services, des middlewares...)
 
+## Rappel sur les verbes HTTP (Get, Post, Put, Patch, Delete)
+
+Chaque verbe à utiliser dans une API REST correspond à une action à réaliser sur une ressource.
+_Note, il est possible de tout faire avec Post mais ce n'est VRAIMENT pas une bonne pratique._
+
+- Get: récupérer des données (ex: récupérer tout les utilisateurs ou récupérer 1 utilisateur via son ID)
+- Post: ajouter des données (ex: ajouter un utilisateur)
+- Put: mettre à jour des données (ex: mettre à jour un utilisateur via son ID)
+- Patch: mettre à jour partiellement des données (ex: mettre à jour le nom d'un utilisateur via son ID)
+- Delete: supprimer des données (ex: supprimer un utilisateur via son ID)
+
 ## Rappel sur l'injection de dépendance
+
+Personnelement, je séparer l'injection de dépendance en 3 étapes:
+
+- Préparer la dépendance
+- Mettre à disposition la dépendance
+- Utliser (Injecter) la dépendance
 
 ### On prépare la dépendance (le service)
 
@@ -257,4 +319,231 @@ public Utilisateur? Login(string username, string password)
     return null;
 }
 //...
+```
+
+## CORS
+
+CORS (Cross-Origin Resource Sharing) permet de définir qui peut accéder à l'API.
+
+C'est une sécurité qui permet d'éviter que n'importe qui (n'importe quelle URL) puisse accéder à l'API. (ex: éviter les attaques CSRF)
+
+### Configuration
+
+Tout d'abord, il faut ajouter le service CORS dans le fichier `Program.cs` entre `WebApplication.CreateBuilder` et `builder.Build`.
+
+```csharp
+builder.Services.AddCors(options =>
+    {
+        // pas de sécurité, tout le monde peut accèder à l'API.
+        // utile pour le développement mais à NE PAS UTILISER EN PRODUCTION
+        options.AddPolicy("FFA", policy => {
+            policy.AllowAnyOrigin();
+            policy.AllowAnyMethod();
+            policy.AllowAnyHeader();
+        });
+
+        // Configuration de sécurité pour le développement
+        // uniquement les clients avec ces URLs spécifiques peuvent accèder à l'API
+        options.AddPolicy("Dev", policy =>
+        {
+            policy.WithOrigins("http://localhost:63342", "http://demo.be");
+            policy.AllowAnyMethod();
+            policy.AllowAnyHeader();
+        });
+    }
+);
+```
+
+Ensuite, il faut ajouter le middleware CORS dans le fichier `Program.cs`, après la redirection https (`app.UseHttpsRedirection();`)
+
+```csharp
+app.UseCors("Dev"); // on utilise la policy "Dev" définie plus haut
+```
+
+## Envoie d'email (MailKit)
+
+Pour envoyer des emails, il est recommendé de passer par des services tiers (ex: SendGrid, MailJet, MailGun, etc...) cependant, ces solutions ne sont pas toujours gratuite.
+
+Pour le développement, nous allons utiliser "SMTP4Dev" qui est une application qui permet de simuler un serveur SMTP. [https://github.com/rnwood/smtp4dev](https://github.com/rnwood/smtp4dev)
+
+Et pour envoyer des emails, nous allons utiliser la bibliothèque `MailKit` qui permet d'envoyer des emails en utilisant le protocole SMTP.
+
+### SMTP4Dev
+
+#### Installation
+
+Dans les "releases" (colonnes de droite), plusieurs options seront disponibles.
+
+Pour ma part, j'utilise Windows 11, j'ai donc télécharger la version "Windows x64 binary standalone - Desktop app edition".
+
+_Note: il existe une version "Desktop app edition" et "Server edition", les 2 fonctionnes très bien, la seule différences est que si vous utiliser la version serveur, il faudra se rendre la page web "http://localhost:5000" pour avoir accès à l'application_
+
+#### Interfaces
+
+Dans l'onglet `Message`, on retrouvera tout les mails reçus (à gauche) et le contenu du mail sélectionner (à droite). _Actuellement, vide car aucun mail n'a circulé via notre SMTP_.
+
+En haut à droite de l'application, on notera qu'il est inscrit "SMTP server listening on port 25". Cela signifie que lors que nous devrons renseigner les informations de connection dans notre code, le `host` sera égale à `localhost` (ou `127.0.0.1`) et le `port` sera égale à `25`.
+
+### Mailkit
+
+Maintenant que notre serveur SMTP est mit en place, nous allons pouvoir envoyer des emails en utilisant la bibliothèque `MailKit`. L'avantage d'utiliser `MailKit` est qu'il va gérer pour nous la connection au serveur SMTP, l'envoie de l'email, etc...
+
+#### Installation
+
+Dans une API avec une architecture en N-Tier, l'envoie d'email sera gera dans le layer de controller (API).
+
+Pour installer `MailKit`, il faut passer par le gestionnaire de NuGet package (clique droit sur le projet > `Gérer les packages NuGet...` > Parcourir > chercher `MailKit` > sélectionner le package `Mailkit` par jstedfast > Installer)
+
+#### Utilisation
+
+Dans le projet API, on va créer une dépendance pour le service d'envoie d'email.
+
+##### Interface
+
+Dans la démo: DemoAPI > Services > Interfaces > `IMailHelperService.cs`, notre `MailHelperService` servira à envoyer un mail lors de l'enregistrement du user et lors de sa connexion.
+
+```csharp
+using DemoAPI.Domain.Models;
+
+namespace DemoAPI.Services.Interfaces
+{
+    public interface IMailHelperService
+    {
+        void SendWelcomeMail(Utilisateur utilisateur);
+        void SendWarningLoginMail(Utilisateur utilisateur);
+    }
+}
+```
+
+##### Service
+
+Dans le fichier de configuration (`appsettings.json`), nous avons renseigné différentes informations sous l'objet `Smtp`.
+
+- `NoReply`: objet qui contient le nom et l'email de l'expéditeur
+  - `Name`: nom de l'expéditeur
+  - `Email`: email de l'expéditeur
+- `Host`: adresse du serveur SMTP (`localhost` ou `127.0.0.1` si SMTP4Dev tourne en local)
+- `Port`: port du serveur SMTP (`25` si SMTP4Dev tourne en local)
+
+```csharp
+using DemoAPI.Domain.Models;
+using DemoAPI.Services.Interfaces;
+using MailKit.Net.Smtp;
+using MimeKit;
+using MimeKit.Text;
+
+namespace DemoAPI.Services
+{
+    public class MailHelperService : IMailHelperService
+    {
+        private readonly string _noReplyName;
+        private readonly string _noReplyEmail;
+        private readonly string _smtpHost;
+        private readonly int _smptPort;
+
+        public MailHelperService(IConfiguration configuration)
+        {
+            // récupérer les informations de fichier de configuration
+            // Expéditeur
+            _noReplyName = configuration.GetValue<string>("Smtp:NoReply:Name")!;
+            _noReplyEmail = configuration.GetValue<string>("Smtp:NoReply:Email")!;
+            // Serveur SMTP
+            _smtpHost = configuration.GetValue<string>("Smtp:Host")!;
+            _smptPort = configuration.GetValue<int>("Smpt:Port");
+        }
+
+        private SmtpClient GetSmtpClient()
+        {
+            // connection vers le SMTP
+            SmtpClient client = new SmtpClient();
+            client.Connect(_smtpHost, _smptPort);
+            // client.Authenticate(...); // si besoin d'une authentification avec le server SMTP
+            return client;
+        }
+
+        public void SendWelcomeMail(Utilisateur utilisateur)
+        {
+            // préparation de l'email
+            MimeMessage email = new MimeMessage();
+            email.From.Add(new MailboxAddress(_noReplyName, _noReplyEmail));
+            email.To.Add(new MailboxAddress(utilisateur.Username, utilisateur.Email));
+            email.Subject = "Bienvenue sur notre super site !";
+            email.Body = new TextPart(TextFormat.Plain)
+            {
+                Text = $"Bienvenue dans notre site, {utilisateur.Username}! \n\n" +
+                        "╰(*°▽°*)╯ \n\n" +
+                        "Coordialement l'équipe Demo."
+            };
+
+            // connection vers le SMTP
+            using SmtpClient client = GetSmtpClient();
+
+            // envoie de l'email
+            client.Send(email);
+
+            // déconnection du SMTP
+            client.Disconnect(true);
+        }
+
+        public void SendWarningLoginMail(Utilisateur utilisateur)
+        {
+            // préparation de l'email
+            MimeMessage email = new MimeMessage();
+            email.From.Add(new MailboxAddress(_noReplyName, _noReplyEmail));
+            email.To.Add(new MailboxAddress(utilisateur.Username, utilisateur.Email));
+            email.Subject = "Attention une connection à votre compte a été detectée";
+            email.Body = new TextPart(TextFormat.Html)
+            {
+                Text = $"<!DOCTYPE html><html lang=\"fr\">" +
+                $"<body>" +
+                $"<p>Hello world</p>" +
+                $"</body>" +
+                $"</html>"
+            };
+
+            // connection vers le SMTP
+            using SmtpClient client = GetSmtpClient();
+
+            // envoie de l'email
+            client.Send(email);
+
+            // déconnection du SMTP
+            client.Disconnect(true);
+        }
+    }
+}
+```
+
+##### Mise à disposition de la dépendance
+
+Cf: [Rappel sur l'injection de dépendance](#rappel-sur-linjection-de-dépendance)
+
+##### Utilisation
+
+Dans le controller, on va utiliser le service pour envoyer un email lors de l'enregistrement d'un utilisateur.
+
+```csharp
+[HttpPost]
+public ActionResult<DetailsUtilisateurDTO> Create([FromForm] CreateUtilisateurDTO dto) {
+    if (ModelState.IsValid)
+    {
+        // return _utilisateurService.Create(dto.ToUtilisateur()).ToDetailsUtilisateurDTO();
+        Utilisateur utilisateur = dto.ToUtilisateur();
+        Utilisateur updated = _utilisateurService.Create(utilisateur);
+
+        _mailHelperService.SendWelcomeMail(utilisateur); // envoie de l'email de bienvenue
+
+        return Ok(updated.ToDetailsUtilisateurDTO());
+    }
+
+    return BadRequest();
+}
+```
+
+## Pagination
+
+TODO
+
+```
+
 ```

@@ -15,8 +15,12 @@ namespace DemoAPI.Services
 
         public MailHelperService(IConfiguration configuration)
         {
+            // récupérer les informations de fichier de configuration
+
+            // Expéditeur
             _noReplyName = configuration.GetValue<string>("Smtp:NoReply:Name")!;
             _noReplyEmail = configuration.GetValue<string>("Smtp:NoReply:Email")!;
+            // Serveur SMTP
             _smtpHost = configuration.GetValue<string>("Smtp:Host")!;
             _smptPort = configuration.GetValue<int>("Smpt:Port");
         }
@@ -27,6 +31,7 @@ namespace DemoAPI.Services
             SmtpClient client = new SmtpClient();
             client.Connect(_smtpHost, _smptPort);
             // client.Authenticate(...); // si besoin d'une authentification avec le server SMTP
+
             return client;
         }
 
@@ -44,9 +49,13 @@ namespace DemoAPI.Services
                         "Coordialement l'équipe Demo."
             };
 
+            // connection vers le SMTP
             using SmtpClient client = GetSmtpClient();
 
+            // envoie de l'email
             client.Send(email);
+
+            // déconnection du SMTP
             client.Disconnect(true);
         }
 
@@ -78,7 +87,10 @@ namespace DemoAPI.Services
             // connection vers le SMTP
             using SmtpClient client = GetSmtpClient();
 
+            // envoie de l'email
             client.Send(email);
+
+            // déconnection du SMTP
             client.Disconnect(true);
         }
     }
