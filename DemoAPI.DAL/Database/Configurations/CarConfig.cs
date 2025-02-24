@@ -46,6 +46,18 @@ namespace DemoAPI.DAL.Database.Configurations
                 .WithMany(u => u.Cars) // Utilisateur possède plusieurs Cars
                 .HasForeignKey("OwnerId") // La clé étrangère est OwnerId dans la DB (on doit le préciser car on fait du shadowing)
                 .OnDelete(DeleteBehavior.SetNull);
+
+
+            // Relation N:N entre Car et CarTag
+            builder.HasMany(c => c.Tags)
+                .WithMany(t => t.Cars);
+
+                // FULL controlle de la table intermédiaire
+                //.UsingEntity("MM_Car_Tag",
+                //    tag => tag.HasOne(typeof(CarTag)).WithMany().HasForeignKey("TagId").HasPrincipalKey(nameof(CarTag.Id)).OnDelete(DeleteBehavior.ClientSetNull),
+                //    car => car.HasOne(typeof(Car)).WithMany().HasForeignKey("CarId").HasPrincipalKey(nameof(Car.Id)),
+                //    join => join.HasKey("TagId", "CarId")
+                //);
             #endregion
         }
     }

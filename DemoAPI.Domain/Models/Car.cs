@@ -10,5 +10,7 @@
         public bool IsNew { get; set; }
 
         public Utilisateur? Owner { get; set; }
+
+        public List<CarTag> Tags { get; set; } = [];
     }
 }
