@@ -28,8 +28,8 @@ namespace DemoAPI.Controllers
 
         [HttpGet]
         [Authorize(Roles= "Medior")]
-        public ActionResult<IEnumerable<ListUtilisateurDTO>> GetAll() {
-            IEnumerable<Utilisateur> utilisateurs = _utilisateurService.GetAll();
+        public ActionResult<IEnumerable<ListUtilisateurDTO>> GetAll([FromQuery] PaginationParams pagination) {
+            IEnumerable<Utilisateur> utilisateurs = _utilisateurService.GetAll(pagination);
 
             IEnumerable<ListUtilisateurDTO> usersDTO = utilisateurs.Select(u => u.ToListUtilisateurDTO());
 

@@ -44,9 +44,17 @@ namespace DemoAPI.BLL.Services
             }
         }
 
-        public IEnumerable<Utilisateur> GetAll()
+        public IEnumerable<Utilisateur> GetAll(PaginationParams pagination)
         {
-            return _utilisateurRepository.GetAll();
+            int offset = pagination.Page * pagination.PageSize;
+            int limit = pagination.PageSize;
+
+            if(limit > 100)
+            {
+                limit = 50;
+            }
+
+            return _utilisateurRepository.GetAll(offset, limit);
         }
 
         public Utilisateur GetOne(int id)

@@ -9,7 +9,7 @@ namespace DemoAPI.DAL.Repositories.Interfaces
 {
     public interface ICarRepository
     {
-        IEnumerable<Car> GetAll();
+        IEnumerable<Car> GetAll(int offset, int limit);
         Car Create(Car car);
         Car? GetOne(int id);
     }

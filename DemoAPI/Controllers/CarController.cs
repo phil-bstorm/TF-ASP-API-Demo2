@@ -21,9 +21,9 @@ namespace DemoAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<ListCarDTO>> GetAll()
+        public ActionResult<IEnumerable<ListCarDTO>> GetAll([FromQuery] PaginationParams pagination)
         {
-            IEnumerable<Car> cars = _carService.GetAll();
+            IEnumerable<Car> cars = _carService.GetAll(pagination);
 
             // transformer DTO
             IEnumerable<ListCarDTO> carsDTO = cars.Select(c => c.ToListCarDTO());

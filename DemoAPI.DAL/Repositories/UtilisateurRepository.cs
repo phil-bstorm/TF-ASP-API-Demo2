@@ -32,9 +32,11 @@ namespace DemoAPI.DAL.Repositories
             _context.SaveChanges();
         }
 
-        public IEnumerable<Utilisateur> GetAll()
+        public IEnumerable<Utilisateur> GetAll(int offset, int limit)
         {
-            return _context.Utilisateurs;
+            return _context.Utilisateurs
+                .Skip(offset)
+                .Take(limit);
         }
 
         public Utilisateur? GetByEmail(string email)

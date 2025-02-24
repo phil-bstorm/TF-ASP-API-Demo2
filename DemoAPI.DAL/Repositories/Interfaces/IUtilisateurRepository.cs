@@ -9,7 +9,7 @@ namespace DemoAPI.DAL.Repositories.Interfaces
 {
     public interface IUtilisateurRepository
     {
-        IEnumerable<Utilisateur> GetAll();
+        IEnumerable<Utilisateur> GetAll(int offset, int limit);
         Utilisateur Create(Utilisateur utilisateur);
         Utilisateur? GetOne(int id);
         Utilisateur? GetByEmail(string email);

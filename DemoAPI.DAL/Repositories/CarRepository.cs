@@ -26,9 +26,11 @@ namespace DemoAPI.DAL.Repositories
             return result;
         }
 
-        public IEnumerable<Car> GetAll()
+        public IEnumerable<Car> GetAll(int offset = 0, int limit = 20)
         {
-            return _context.Cars;
+            return _context.Cars
+                .Skip(offset)
+                .Take(limit);
         }
 
         public Car? GetOne(int id)

@@ -1,5 +1,4 @@
-﻿using DemoAPI.Domain;
-using DemoAPI.Domain.Models;
+﻿using DemoAPI.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +9,7 @@ namespace DemoAPI.BLL.Services.Interfaces
 {
     public interface IService<Entity, Key>
     {
-        IEnumerable<Entity> GetAll();
+        IEnumerable<Entity> GetAll(PaginationParams pagination);
         Entity Create(Entity entity);
         Entity GetOne(Key id);
         void Delete(int id);

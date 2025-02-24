@@ -33,9 +33,17 @@ namespace DemoAPI.BLL.Services
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Car> GetAll()
+        public IEnumerable<Car> GetAll(PaginationParams pagination)
         {
-            IEnumerable<Car> cars = _carRepository.GetAll();
+            int offset = pagination.Page * pagination.PageSize;
+            int limit = pagination.PageSize;
+
+            if (limit > 100)
+            {
+                limit = 50;
+            }
+
+            IEnumerable<Car> cars = _carRepository.GetAll(offset, limit);
             return cars;
         }
 
